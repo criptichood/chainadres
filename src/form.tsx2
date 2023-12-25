@@ -1,0 +1,60 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from 'react';
+import { sendTransaction, Recipient, TransactionResult } from './sendTransaction'; // Import your TypeScript code
+
+const TransactionForm: React.FC = () => {
+  const [recipientAddresses, setRecipientAddresses] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [result, setResult] = useState<TransactionResult | null>(null);
+
+  const handleSendTransaction = async () => {
+    setLoading(true);
+
+    const recipients: Recipient[] = recipientAddresses
+      .split(',')
+      .map((address) => ({ to: address.trim() }));
+
+    try {
+      const response = await sendTransaction(recipients);
+      setResult(response);
+      if (response.success) {
+        console.log(`Successfully sent ${response.successCount} transactions.`);
+      } else {
+        console.error(`Transaction failed: ${response.errorMessage}`);
+      }
+    } catch (error: any) {
+      console.error('Error sending transaction:', error.message);
+      setResult({ success: false, errorMessage: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Send Transaction</h2>
+      <label>
+        Recipient Addresses (comma-separated):
+        <input
+          type="text"
+          value={recipientAddresses}
+          onChange={(e) => setRecipientAddresses(e.target.value)}
+        />
+      </label>
+      <button onClick={handleSendTransaction} disabled={loading}>
+        {loading ? 'Sending...' : 'Send Transaction'}
+      </button>
+      {result && (
+        <div>
+          <p>
+            {result.success
+              ? `Transaction successful! Sent ${result.successCount} transactions.`
+              : `Transaction failed: ${result.errorMessage}`}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TransactionForm;
