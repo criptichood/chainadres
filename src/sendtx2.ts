@@ -17,7 +17,7 @@ export async function sendTransaction(
   recipients: Recipient[]
 ): Promise<TransactionResult> {
   const mnemonic =
-    "raccoon mechanic glare stamp avoid car clip leg predict start upon action involve before fiscal cluster aisle argue puzzle twin usual scatter merge brief";
+    " Your phrase here";
   const key = await mnemonicToWalletKey(mnemonic.split(" "));
   const wallet = WalletContractV4.create({ publicKey: key.publicKey, workchain: 0 });
 
