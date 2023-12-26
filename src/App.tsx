@@ -1,16 +1,20 @@
 
 import './App.css'
-import TransactionForm from './TransactionForm';
-
+import Footer from './components/Footer';
+ //import TransactionForm from './components/transactionForm';
+import Navbar from './components/Navbar';
+import SendTransfer from './components/SendTransfer';
 function App() {
  
   return (
-    <>
-       <div>
-      <h1>Chainadres</h1>
-      <TransactionForm />
+    
+       <div >
+        <Navbar />
+        <SendTransfer />
+        <Footer />
+      {/* */}
     </div>
-    </>
+    
   )
 }
 

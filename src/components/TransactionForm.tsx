@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
-import { sendTransaction, Recipient, TransactionResult } from './sendTransaction'; // Import your TypeScript code
-import './assets/input.css'
+import { sendTransaction, Recipient, TransactionResult } from '../scripts/sendTransaction'; // Import your TypeScript code
+import '../assets/styles/tsForm.css'
 const TransactionForm: React.FC = () => {
   const [recipientAddresses, setRecipientAddresses] = useState<string>('');
   const [value, setValue] = useState<string>('0.001'); // Default value
@@ -43,12 +43,10 @@ const TransactionForm: React.FC = () => {
   };
 
   return (
-    <div className="container">
-    
-
+    <div className='tx-container'>
       <h2>Send Transaction</h2>
       <div className="input-group">
-      <label className="input-group__label" htmlFor="myInput">
+      <label className="input-group-label" htmlFor="label">
         Recipient Addresses:</label>
         <input
           type="text" id="myInput" className="input-group__input"
@@ -58,7 +56,7 @@ const TransactionForm: React.FC = () => {
       
       </div>
       <div className="input-group">
-      <label className="input-group__label" htmlFor="myInput">
+      <label className="input-group-label" htmlFor="label">
         Value:</label>
         <input
           type="text" id="myInput" className="input-group__input"
@@ -67,7 +65,7 @@ const TransactionForm: React.FC = () => {
         />
       </div>
       <div className="input-group">
-      <label className="input-group__label" htmlFor="myInput">
+      <label className="input-group-label" htmlFor="label">
         Body</label>
         <input
           type="text" id="myInput" className="input-group__input"
