@@ -5,6 +5,7 @@ import { TonClient, WalletContractV4, internal } from "@ton/ton";
 import * as dotenv from 'dotenv';
 dotenv.config();
 export interface Recipient {
+  [x: string]: any;
   to: string;      // 'address' property 
   value?: string; // 'value' property
   body?: string;  // 'body' property

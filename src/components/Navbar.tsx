@@ -1,8 +1,6 @@
 // import React from 'react'
 import '../assets/bootstrap/css/bootstrap.min.css'
 
-
-
 export default function Navbar() {
   return (
     <>
@@ -18,19 +16,16 @@ export default function Navbar() {
                     <li className="nav-item"><a className="nav-link" href="team.html">Acknowledgements</a></li>
                     <li className="nav-item"><a className="nav-link" href="contacts.html">Contacts</a></li>
                     <li className="nav-item"></li>
-                </ul><a href="contacts.html" className=""><strong><span className="">Balance:&nbsp;</span></strong><span>200 imageHere</span><span></span></a><a className="btn btn-primary shadow" role="button" href="signup.html">Create Wallet</a>
+                </ul><a href="contacts.html" className=""><strong><span className="">Balance:&nbsp;</span></strong><span>200 imageHere</span><span></span></a><a className="btn btn-primary shadow" role="button" href="#">Create Wallet</a>
             </div>
         </div>
+        <hr />
     </nav>
-    {
-        
-    }
+    
     </>
 
   )
   
 }
-import '../assets/js/jquery.min.js'
-import '../assets/bootstrap/js/bootstrap.min.js'
-import '../assets/js/bs-init.js'
+
 
