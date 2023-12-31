@@ -16,7 +16,7 @@ export default function Navbar() {
                     <li className="nav-item"><a className="nav-link" href="team.html">Acknowledgements</a></li>
                     <li className="nav-item"><a className="nav-link" href="contacts.html">Contacts</a></li>
                     <li className="nav-item"></li>
-                </ul><a href="contacts.html" className=""><strong><span className="">Balance:&nbsp;</span></strong><span>200 imageHere</span><span></span></a><a className="btn btn-primary shadow" role="button" href="#">Create Wallet</a>
+                </ul><a href="contacts.html" className=""><strong><span className="">Balance:&nbsp;</span></strong><span>200 imageHere</span><span></span></a>
             </div>
         </div>
         <hr />

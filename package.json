@@ -15,12 +15,15 @@
     "@ton/core": "^0.53.0",
     "@ton/crypto": "^3.2.0",
     "@ton/ton": "^13.9.0",
+    "@types/crypto-js": "^4.2.1",
     "bootstrap": "^5.3.2",
+    "crypto-js": "^4.2.0",
     "dotenv": "^16.3.1",
     "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.2",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.1",
     "vite-plugin-node-polyfills": "^0.17.0"
   },
   "devDependencies": {

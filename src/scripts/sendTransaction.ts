@@ -23,6 +23,7 @@ export interface ProgressCallback {
     current: number,
     total: number,
     confirmationMessage: string,
+    displayAddress: string,
     failedAddresses: string[]
   ): void;
 }
@@ -86,10 +87,11 @@ export async function sendTransaction(
       // Display only the first 10 characters of the first address and the last 5 characters of the last address
       const displayStart = currentRecipients[0].to.slice(0, 10);
       const displayEnd = currentRecipients[currentRecipients.length - 1].to.slice(-5);
-      const confirmationMessage = `Transaction for recipients ${i + 1} to ${
+      const displayAdress = `Address range: ${displayStart} to ${displayEnd}`
+      const confirmationMessage = `Transaction ${i + 1} to ${
         i + currentRecipients.length
-      } confirmed! Displaying addresses: ${displayStart}...${displayEnd}`;
-      onProgress(i + currentRecipients.length, recipients.length, confirmationMessage, failedAddresses);
+      } confirmed!`;
+      onProgress(i + currentRecipients.length, recipients.length, confirmationMessage, displayAdress, failedAddresses);
     } catch (error: any) {
       console.error(
         `Error sending transaction for recipients ${i + 1} to ${
