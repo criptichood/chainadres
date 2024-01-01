@@ -1,18 +1,16 @@
 
-import React, { useState } from "react";
+
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import walletImage from '../assets/img/wallet.jpg';
-import ViewPhrase from './ViewPhrase'; 
+// import ViewPhrase from './ViewPhrase'; 
 
 
 
 
 const LandingPageBody: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const handleShow = () => {
-    setIsModalOpen(true)
-  }
+
+
   return (
     <Container className="mt-5 px-3" > 
       <Row className="justify-content-center">
@@ -34,13 +32,11 @@ const LandingPageBody: React.FC = () => {
             <Button variant="outline-primary" size="lg">
               <Link to="/import-wallet" style={{ color: 'black', textDecoration: 'none' }}>Import Wallet</Link>
             </Button>
-            <Button onClick={handleShow} variant="outline-primary" size="lg">
-              Phrase
-            </Button>
+        
           </div>
-          <ViewPhrase show={isModalOpen} onClose={function (): void {
+          {/* <ViewPhrase show={isModalOpen} onClose={function (): void {
             throw new Error('Function not implemented.');
-          } } />
+          } } /> */}
         </Col>
       </Row>
     </Container>

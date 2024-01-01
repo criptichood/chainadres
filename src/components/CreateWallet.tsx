@@ -1,62 +1,70 @@
-// components/CreateWallet.tsx
-import React, { useState } from "react";
-import { Modal, Button, Form, Alert } from "react-bootstrap";
-import { encrypt, generateKey } from "../utils/crypto";
-import CustomToast from "./Toast";
+// CreateWallet.tsx
+import React, { useState } from 'react';
+import { Modal, Button, Form, Alert } from 'react-bootstrap';
+import { encryptAndSave, generateKeyForCreation } from '../utils/crypto';
+import ViewPhrase from './ViewPhrase';
 
 const CreateWallet: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
-  const [seedPhrase, setSeedPhrase] = useState("DummySeedPhrase");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [seedPhrase, setSeedPhrase] = useState('This is a seed phrase');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showViewPhraseModal, setShowViewPhraseModal] = useState(false);
 
-  const handleShowModal = async () => {
-    setShowModal(true);
-  };
+  const handleShowViewPhraseModal = () => setShowViewPhraseModal(true);
+  const handleCloseViewPhraseModal = () => setShowViewPhraseModal(false);
+
+  const handleShowModal = () => setShowModal(true);
 
   const handleCreateWallet = async () => {
     try {
+      // Check if passwords match
       if (password !== confirmPassword) {
-        throw new Error("Passwords do not match.");
+        throw new Error('Passwords do not match.');
       }
 
-      const key = await generateKey(password);
+      // Additional password validation (e.g., length, complexity) can be added here
 
-      await encrypt(seedPhrase, key);
+      // Generate key and obtain salt during wallet creation
+      const { derivedKey, salt } = await generateKeyForCreation(password);
 
-      setPassword("");
-      setConfirmPassword("");
+      // Encrypt and save seed phrase
+      await encryptAndSave(seedPhrase, derivedKey, salt);
+
+      // Clear sensitive data from memory
+      setPassword('');
+      setConfirmPassword('');
+      setSeedPhrase('');
       setError(null);
-      setShowSuccessToast(true);
       setShowModal(false);
     } catch (error) {
-      setError(`Error creating wallet: ${(error as Error).message}`);
+      let errorMessage = '';
+      switch ((error as Error).message) {
+        case 'Passwords do not match.':
+          errorMessage = 'Your passwords do not match. Please ensure they are identical.';
+          break;
+        // Add more cases as needed for other error messages
+        default:
+          errorMessage = `An unexpected error occurred: ${(error as Error).message}`;
+      }
+      setError(errorMessage);
     }
   };
 
   return (
     <>
       <Button onClick={handleShowModal}>Create Wallet</Button>
-
-      <CustomToast
-        show={showSuccessToast}
-        onClose={() => setShowSuccessToast(false)}
-        message="Wallet created successfully!"
-        variant="success"
-      />
-
+      <Button onClick={handleShowViewPhraseModal}>View Phrase</Button>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title style={{ color: "black" }}>Warning</Modal.Title>
+          <Modal.Title style={{ color: 'black' }}>Warning</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {error && <Alert variant="danger">{error}</Alert>}
-          <p style={{ color: "black" }}>
-            Do not lose your seed phrase. Anyone who has your seed phrase can
-            access your wallet.
+          <p style={{ color: 'black' }}>
+            Do not lose your seed phrase. Anyone who has your seed phrase can access your wallet.
           </p>
           <Form.Check
             type="checkbox"
@@ -86,6 +94,8 @@ const CreateWallet: React.FC = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      {/* View Phrase Modal */}
+      <ViewPhrase show={showViewPhraseModal} onClose={handleCloseViewPhraseModal} />
     </>
   );
 };

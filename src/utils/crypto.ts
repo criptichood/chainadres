@@ -1,7 +1,9 @@
+// crypto.ts
 import crypto from 'crypto';
 
-export async function generateKey(password: string): Promise<CryptoKey> {
+export async function generateKeyForCreation(password: string): Promise<{derivedKey: CryptoKey; salt: Uint8Array}> {
   const salt = crypto.randomBytes(16);
+
   const key = await window.crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(password),
@@ -11,11 +13,10 @@ export async function generateKey(password: string): Promise<CryptoKey> {
   );
 
   const derivedKey = await window.crypto.subtle.deriveKey(
-    
     {
       name: 'PBKDF2',
       salt,
-      iterations: 100000,  // Make sure this matches the value used during decryption
+      iterations: 100000,
       hash: 'SHA-256',
     },
     key,
@@ -24,13 +25,13 @@ export async function generateKey(password: string): Promise<CryptoKey> {
     ['encrypt', 'decrypt']
   );
 
-  return derivedKey;
+  return { derivedKey, salt };
 }
 
-export async function encrypt(seedPhrase: string, derivedKey: CryptoKey): Promise<void> {
+export async function encryptAndSave(seedPhrase: string, derivedKey: CryptoKey, salt: Uint8Array): Promise<void> {
   try {
     const encodedSeed = new TextEncoder().encode(seedPhrase);
-    const iv = crypto.randomBytes(12);
+    const iv = crypto.randomBytes(16);
 
     const encryptedSeed = await window.crypto.subtle.encrypt(
       { name: 'AES-GCM', iv },
@@ -38,46 +39,16 @@ export async function encrypt(seedPhrase: string, derivedKey: CryptoKey): Promis
       encodedSeed
     );
 
-    // Save the encrypted seed and IV to browser storage
+    // Save the encrypted seed, IV, and salt to browser storage
     localStorage.setItem('encryptedSeedPhrase', JSON.stringify({
       encryptedSeed: Array.from(new Uint8Array(encryptedSeed)),
-      iv: Array.from(iv)
+      iv: Array.from(iv),
+      salt: Array.from(salt),
     }));
 
     console.log('Encryption successful!');
   } catch (error) {
     console.error('Encryption failed:', error);
     throw error;
-  }
-}
-
-// crypto.ts
-
-export async function decrypt(encryptedSeedPhrase: string, derivedKey: CryptoKey): Promise<string | null> {
-  try {
-    console.log('Starting decryption...');
-    
-    // Parse the JSON and retrieve the IV and encrypted seed
-    const storedData = JSON.parse(encryptedSeedPhrase);
-    console.log('Parsed JSON:', storedData);
-
-    const { encryptedSeed, iv } = storedData;
-    console.log('IV:', iv);
-    console.log('Encrypted Seed:', encryptedSeed);
-
-    // Decrypt the seed phrase
-    const decryptedSeed = await window.crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: new Uint8Array(iv) },
-      derivedKey,
-      new Uint8Array(encryptedSeed)
-    );
-
-    const decryptedSeedPhrase = new TextDecoder().decode(decryptedSeed);
-    console.log('Decrypted Seed Phrase:', decryptedSeedPhrase);
-
-    return decryptedSeedPhrase;
-  } catch (error) {
-    console.error('Decryption failed:', error);
-    throw new Error('Decryption failed. Please check your password and try again.'); // Provide a more user-friendly error message
   }
 }

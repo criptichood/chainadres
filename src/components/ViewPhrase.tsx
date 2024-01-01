@@ -1,8 +1,7 @@
-// components/ViewPhrase.tsx
-
-import React, { useState } from 'react';
-import { Modal, Button, Alert } from 'react-bootstrap';
-import { decryptSeedPhrase } from '../utils/decrypt';
+// ViewPhrase.tsx
+import React, { useState } from "react";
+import { Modal, Button, Alert } from "react-bootstrap";
+import { decryptPhrase } from "../utils/decrypt";
 
 interface ViewPhraseProps {
   show: boolean;
@@ -11,22 +10,40 @@ interface ViewPhraseProps {
 
 const ViewPhrase: React.FC<ViewPhraseProps> = ({ show, onClose }) => {
   const [decryptedPhrase, setDecryptedPhrase] = useState<string | null>(null);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleDecrypt = async () => {
     try {
+      setLoading(true);
+
+      if (!password) {
+        throw new Error("Password cannot be empty.");
+      }
+
+      const encryptedSeedPhrase = localStorage.getItem("encryptedSeedPhrase");
+      if (!encryptedSeedPhrase) {
+        throw new Error("No encrypted seed phrase found in local storage.");
+      }
+
       // Decrypt the seed phrase using the logic function
-      const decryptedSeedPhrase = await decryptSeedPhrase(password);
-    
+      const decryptedSeedPhrase = await decryptPhrase(encryptedSeedPhrase, password);
+
       // Set the decrypted phrase to the state
       setDecryptedPhrase(decryptedSeedPhrase);
-      
+
       // Clear sensitive data from memory
-      setPassword('');
+      setPassword("");
       setError(null);
     } catch (error) {
-      setError((error as Error).message);
+      let errorMessage = "An error occurred while decrypting the seed phrase.";
+      if (error instanceof Error) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,13 +67,14 @@ const ViewPhrase: React.FC<ViewPhraseProps> = ({ show, onClose }) => {
             />
           </>
         )}
+        {loading && <p>Decrypting...</p>}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onClose}>
           Close
         </Button>
         {!decryptedPhrase && (
-          <Button variant="primary" onClick={handleDecrypt}>
+          <Button variant="primary" onClick={handleDecrypt} disabled={loading}>
             Decrypt and View
           </Button>
         )}

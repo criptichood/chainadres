@@ -49,7 +49,7 @@ const CreateWallet: React.FC = () => {
     } catch (error) {
       setShowToast(true);
       setToastMessage(`Error decrypting seed phrase: ${(error as Error).message}`);
-      setToastgit Variant('danger');
+      setToastVariant('danger');
     }
   };
 
