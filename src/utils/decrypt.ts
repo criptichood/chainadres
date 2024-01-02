@@ -60,3 +60,4 @@ export async function decryptPhrase(encryptedSeedPhrase: string, password: strin
     throw new Error(`Decryption failed. Please check your password and try again. Error: ${(error as Error).message}`);
   }
 }
+
