@@ -25,3 +25,4 @@ dist-ssr
 
 #every thing .env
 *.env
+roadmap/

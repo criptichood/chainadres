@@ -73,7 +73,7 @@ const CreateWallet: React.FC = () => {
       // Generate key and obtain salt during wallet creation
       const { derivedKey, salt } = await generateKeyForCreation(password);
 
-      // Encrypt and save seed phrase
+    // Encrypt and save seed phrase
       await encryptAndSave(seedPhrase!, derivedKey, salt);
 
       // Clear sensitive data from memory

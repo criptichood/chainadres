@@ -155,3 +155,5 @@ const CreateWallet: React.FC = () => {
 };
 
 export default CreateWallet;
+
+//short list of useful github commands to remember
