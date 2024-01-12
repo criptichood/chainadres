@@ -6,6 +6,7 @@ import LandingPage from './components/LandingPage';
 import CreateWallet from './components/CreateWallet';
 import ImportWallet from './components/ImportWallet';
 import CryptoWalletTimeline from './roadmap/cryptoWalletTimeline';
+import SendTransfer from './components/SendTransfer';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/create-wallet" element={<CreateWallet />} />
         <Route path="/import-wallet" element={<ImportWallet />} />
         <Route path='/roadmap' element={<CryptoWalletTimeline />} />
+        <Route path='/send' element={<SendTransfer />} />
         {/* ... other routes */}
       </Routes>
       <Footer />

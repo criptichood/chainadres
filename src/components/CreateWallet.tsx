@@ -32,6 +32,7 @@ const CreateWallet: React.FC = () => {
         const maxAttempts = 5;
 
         const newMnemonic = await generateValidMnemonic(numberOfWords, maxAttempts);
+        
         setSeedPhrase(newMnemonic);
       } catch (error) {
         console.error('Error generating mnemonic:', error);
@@ -56,10 +57,13 @@ const CreateWallet: React.FC = () => {
 
       // Generate key and obtain salt during wallet creation
       const { derivedKey, salt } = await generateKeyForCreation(password);
-
+      
+      // Get the existing wallets from localStorage
+      const existingWallets = JSON.parse(localStorage.getItem('wallets') || '[]');
+        console.log(existingWallets)
       // Encrypt and save seed phrase
-      await encryptAndSave(seedPhrase!, derivedKey, salt);
-
+      console.log("Before encryption: ",seedPhrase)
+    await encryptAndSave(`Wallet${existingWallets.length}`, seedPhrase!, derivedKey, salt);
       // Clear sensitive data from memory
       setPassword('');
       setConfirmPassword('');

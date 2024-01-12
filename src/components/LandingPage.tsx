@@ -53,6 +53,16 @@ const LandingPageBody: React.FC = () => {
                 RoadMap
               </Link>
             </Button>
+            <Button variant="primary" size="lg" className="me-md-3 me-1">
+              {" "}
+              {/* Adjusted button size on mobile */}
+              <Link
+                to="/send "
+                style={{ color: "white", textDecoration: "none" }}
+              >
+                Send
+              </Link>
+            </Button>
           </div>
           {/* <ViewPhrase show={isModalOpen} onClose={function (): void {
             throw new Error('Function not implemented.');

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#f39c12" />
+
+  <!-- Dynamic Wallet Shape -->
+  <path d="M50 100 Q100 20 150 100 Q100 180 50 100" fill="#ffffff" />
+  
+  <!-- Money Symbol -->
+  <text x="100" y="110" font-family="Arial" font-size="40" fill="#3498db">$</text>
+</svg>

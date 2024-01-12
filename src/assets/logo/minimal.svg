@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#2ecc71" />
+
+  <!-- Wallet Icon -->
+  <rect x="50" y="50" width="100" height="100" fill="#ffffff" />
+
+  <!-- Money Bills -->
+  <rect x="70" y="80" width="20" height="10" fill="#3498db" />
+  <rect x="100" y="70" width="20" height="20" fill="#3498db" />
+  <rect x="130" y="80" width="20" height="10" fill="#3498db" />
+</svg>

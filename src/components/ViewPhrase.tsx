@@ -22,13 +22,19 @@ const ViewPhrase: React.FC<ViewPhraseProps> = ({ show, onClose }) => {
         throw new Error("Password cannot be empty.");
       }
 
-      const encryptedSeedPhrase = localStorage.getItem("encryptedSeedPhrase");
+      const encryptedSeedPhrase = localStorage.getItem("wallets");
+      
       if (!encryptedSeedPhrase) {
-        throw new Error("No encrypted seed phrase found in local storage.");
+        throw new Error(
+          "No encrypted seed phrase found in local storage."
+        );
       }
 
       // Decrypt the seed phrase using the logic function
-      const decryptedSeedPhrase = await decryptPhrase(encryptedSeedPhrase, password);
+      const decryptedSeedPhrase = await decryptPhrase(
+        encryptedSeedPhrase,
+        password
+      );
 
       // Set the decrypted phrase to the state
       setDecryptedPhrase(decryptedSeedPhrase);
@@ -37,7 +43,8 @@ const ViewPhrase: React.FC<ViewPhraseProps> = ({ show, onClose }) => {
       setPassword("");
       setError(null);
     } catch (error) {
-      let errorMessage = "An error occurred while decrypting the seed phrase.";
+      let errorMessage =
+        "An error occurred while decrypting the seed phrase.";
       if (error instanceof Error) {
         errorMessage = `Error: ${error.message}`;
       }

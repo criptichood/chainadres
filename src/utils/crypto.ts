@@ -29,12 +29,12 @@ export async function generateKeyForCreation(
 
   return { derivedKey, salt };
 }
-
-export async function encryptAndSave(
-  seedPhrase: string,
-  derivedKey: CryptoKey,
-  salt: Uint8Array
-): Promise<void> {
+interface Wallet {
+  id: string;
+  // other properties...
+ }
+export async function encryptAndSave(walletId: string, seedPhrase: string, derivedKey: CryptoKey, salt: Uint8Array): Promise<void> {
+  
   try {
     const encodedSeed = new TextEncoder().encode(seedPhrase);
     const iv = crypto.randomBytes(16);
@@ -45,15 +45,27 @@ export async function encryptAndSave(
       encodedSeed
     );
 
-    // Save the encrypted seed, IV, and salt to browser storage
-    localStorage.setItem(
-      "encryptedSeedPhrase",
-      JSON.stringify({
+    // Get the existing wallets from localStorage
+    const existingWallets = JSON.parse(localStorage.getItem('wallets') || '[]');
+
+    // Find the wallet with the specified ID
+    const walletIndex = existingWallets.findIndex((wallet: Wallet) => wallet.id === walletId);
+    // Update the existing wallet or add a new one if it doesn't exist
+    if (walletIndex !== -1) {
+      existingWallets[walletIndex].encryptedSeed = Array.from(new Uint8Array(encryptedSeed));
+      existingWallets[walletIndex].iv = Array.from(iv);
+      existingWallets[walletIndex].salt = Array.from(salt);
+    } else {
+      existingWallets.push({
+        id: walletId,
         encryptedSeed: Array.from(new Uint8Array(encryptedSeed)),
         iv: Array.from(iv),
         salt: Array.from(salt),
-      })
-    );
+      });
+    }
+
+    // Update the list of wallets in localStorage
+    localStorage.setItem('wallets', JSON.stringify(existingWallets));
 
     console.log("Encryption successful!");
   } catch (error) {
