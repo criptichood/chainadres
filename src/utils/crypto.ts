@@ -1,5 +1,12 @@
-// crypto.ts
 import crypto from "crypto";
+import { db } from "./wallet.utils"; 
+interface Wallet {
+  id: string;
+  encryptedSeed: number[];
+  iv: number[];
+  salt: number[];
+  // other properties...
+}
 
 export async function generateKeyForCreation(
   password: string
@@ -29,12 +36,8 @@ export async function generateKeyForCreation(
 
   return { derivedKey, salt };
 }
-interface Wallet {
-  id: string;
-  // other properties...
- }
+
 export async function encryptAndSave(walletId: string, seedPhrase: string, derivedKey: CryptoKey, salt: Uint8Array): Promise<void> {
-  
   try {
     const encodedSeed = new TextEncoder().encode(seedPhrase);
     const iv = crypto.randomBytes(16);
@@ -45,31 +48,40 @@ export async function encryptAndSave(walletId: string, seedPhrase: string, deriv
       encodedSeed
     );
 
-    // Get the existing wallets from localStorage
-    const existingWallets = JSON.parse(localStorage.getItem('wallets') || '[]');
+  
 
-    // Find the wallet with the specified ID
-    const walletIndex = existingWallets.findIndex((wallet: Wallet) => wallet.id === walletId);
-    // Update the existing wallet or add a new one if it doesn't exist
-    if (walletIndex !== -1) {
-      existingWallets[walletIndex].encryptedSeed = Array.from(new Uint8Array(encryptedSeed));
-      existingWallets[walletIndex].iv = Array.from(iv);
-      existingWallets[walletIndex].salt = Array.from(salt);
-    } else {
-      existingWallets.push({
-        id: walletId,
-        encryptedSeed: Array.from(new Uint8Array(encryptedSeed)),
-        iv: Array.from(iv),
-        salt: Array.from(salt),
-      });
-    }
+    // Use a transaction to perform the database operations
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(["wallets"], "readwrite");
+      const store = transaction.objectStore("wallets");
 
-    // Update the list of wallets in localStorage
-    localStorage.setItem('wallets', JSON.stringify(existingWallets));
+      // Find the wallet with the specified ID
+      const request = store.get(walletId);
 
-    console.log("Encryption successful!");
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const existingWallet = request.result as Wallet;
+
+        // Update the existing wallet or add a new one if it doesn't exist
+        const updatedWallet: Wallet = {
+          id: walletId,
+          encryptedSeed: Array.from(new Uint8Array(encryptedSeed)),
+          iv: Array.from(iv),
+          salt: Array.from(salt),
+        };
+
+        const saveRequest = existingWallet
+          ? store.put(updatedWallet)
+          : store.add(updatedWallet);
+
+        saveRequest.onerror = () => reject(saveRequest.error);
+        saveRequest.onsuccess = () => resolve();
+      };
+    });
+
+    console.log("Encryption and storage successful!");
   } catch (error) {
-    console.error("Encryption failed:", error);
+    console.error("Encryption and storage failed:", error);
     throw error;
   }
 }

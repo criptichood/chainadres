@@ -14,7 +14,7 @@ import {
   mnemonicNew,
   mnemonicValidate,
 } from "../ton-crypto/src/mnemonic/mnemonic";
-import ViewPhrase from "./ViewPhrase";
+import ViewPhrase from "./sendtx/importWallet/viewPhrase/ViewPhrase";
 
 const CreateWallet: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
