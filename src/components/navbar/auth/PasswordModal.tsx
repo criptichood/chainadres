@@ -39,11 +39,13 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
     } else {
       setError("Password is too short");
     }
+    setError(null)
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && password.length >= 6) {
       handleSubmit();
+      
     }
   };
 

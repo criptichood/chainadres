@@ -1,25 +1,20 @@
-// WalletInfoDisplay.tsx
 import QRCode from "qrcode.react";
+import { Button, Card, CardBody, Modal, Nav, NavDropdown } from "react-bootstrap";
+import { z } from "zod";
 
-import {
-  Button,
-  Card,
-  CardBody,
-  Modal,
-  Nav,
-  NavDropdown,
-} from "react-bootstrap";
+// Define Zod schema for the props
+const WalletInfoDisplayPropsSchema = z.object({
+  selectedWallet: z.string().nullable(),
+  walletAddress: z.string().nullable(),
+  isNotFriendly: z.string().nullable(),
+  balance: z.string().nullable(),
+  show: z.boolean(),
+  handleShowModal: z.function(),
+  onHide: z.function(),
+  onCopyAddress: z.function(),
+});
 
-interface WalletInfoDisplayProps {
-  selectedWallet: string | null;
-  walletAddress: string | null;
-  isNotFriendly: string | null;
-  balance: string | null;
-  show: boolean;
-  handleShowModal: () => void;
-  onHide: () => void;
-  onCopyAddress: () => void;
-}
+type WalletInfoDisplayProps = z.infer<typeof WalletInfoDisplayPropsSchema>;
 
 const WalletInfoDisplay: React.FC<WalletInfoDisplayProps> = ({
   selectedWallet,
@@ -31,6 +26,18 @@ const WalletInfoDisplay: React.FC<WalletInfoDisplayProps> = ({
   onHide,
   onCopyAddress,
 }) => {
+  // Zod validation
+  WalletInfoDisplayPropsSchema.parse({
+    selectedWallet,
+    walletAddress,
+    isNotFriendly,
+    balance,
+    show,
+    handleShowModal,
+    onHide,
+    onCopyAddress,
+  });
+
   return (
     <>
       <Nav.Item>
@@ -60,9 +67,7 @@ const WalletInfoDisplay: React.FC<WalletInfoDisplayProps> = ({
       <Nav>{/* Other components related to the wallet info display */}</Nav>
       <Modal
         show={show}
-        onHide={() => {
-          onHide;
-        }}
+        onHide={onHide} // Corrected the onHide function call
       >
         <Modal.Header closeButton>
           <Modal.Title>Wallet address</Modal.Title>
@@ -71,7 +76,7 @@ const WalletInfoDisplay: React.FC<WalletInfoDisplayProps> = ({
           <Card>
             <CardBody>
               <Card.Title>User Friendly</Card.Title>
-              //to use another qrcode generator
+              {/* To use another QR code generator */}
               <QRCode
                 value={walletAddress || ""}
                 size={200}

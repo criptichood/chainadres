@@ -1,6 +1,22 @@
 // config.ts
+import { z } from 'zod';
 
-import { Network } from "@orbs-network/ton-access";
+export enum Network {
+  Mainnet = 'mainnet',
+  Testnet = 'testnet',
+  // ... other network options
+}
+
+// Define Zod schema for configuration data
+const ConfigSchema = z.object({
+  key: z.string(),
+  value: z.string(),
+});
+
+// Define Zod schema for the network configuration
+const NetworkConfigSchema = z.object({
+  selectedNetwork: z.enum([Network.Mainnet, Network.Testnet]),
+});
 
 // Open or create the IndexedDB database
 const openDB = async (): Promise<IDBDatabase> => {
@@ -23,8 +39,12 @@ export const saveConfig = async (key: string, value: string): Promise<void> => {
     const db = await openDB();
     const transaction = db.transaction(['config'], 'readwrite');
     const store = transaction.objectStore('config');
-     store.put({ key, value });
-    //console.log(`Configuration saved: ${key}`);
+
+    // Validate the input against the schema
+    ConfigSchema.parse({ key, value });
+
+    store.put({ key, value });
+    // console.log(`Configuration saved: ${key}`);
   } catch (error) {
     console.error(`Error saving configuration: ${key}`, error);
     throw error;
@@ -44,7 +64,9 @@ export const loadConfig = async (key: string): Promise<string | null> => {
       request.onsuccess = () => {
         const storedValue = request.result;
         if (storedValue) {
-        //  console.log(`Configuration loaded: ${key}`);
+          // Validate the retrieved value against the schema
+          ConfigSchema.parse(storedValue);
+          // console.log(`Configuration loaded: ${key}`);
           resolve(storedValue.value);
         } else {
           resolve(null);
@@ -60,10 +82,14 @@ export const loadConfig = async (key: string): Promise<string | null> => {
 // Function to load network from IndexedDB
 export const loadNetwork = async (): Promise<Network | null> => {
   try {
-    const network = await loadConfig('selectedNetwork');
-    if (network === 'mainnet' || network === 'testnet') {
-      return network;
+    const networkConfig = await loadConfig('selectedNetwork');
+
+    if (networkConfig !== null) {
+      // Validate the retrieved network configuration against the schema
+      NetworkConfigSchema.parse({ selectedNetwork: networkConfig });
+      return networkConfig as Network;
     }
+
     return null;
   } catch (error) {
     console.error('Error loading network configuration', error);
