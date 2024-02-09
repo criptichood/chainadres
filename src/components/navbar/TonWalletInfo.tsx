@@ -6,100 +6,129 @@ import NetworkSelectionForm from "./NetworkSelectionForm";
 import WalletInfoDisplay from "./WalletInfoDisplay";
 import WalletSelectDropdown from "./WalletSelectDropdown";
 import useBalanceService from "./BalanceService";
-import useWalletData from "../hooks/useWalletData";
+import useWalletData, { Network } from "../hooks/useWalletData";
 import { saveConfig } from "../../config/config";
 import logo from "../../assets/logo/chianinterlink.svg";
 import { Link } from "react-router-dom";
-import { Network } from "@orbs-network/ton-access";
-
-import { useEffect, useState } from "react";
+//import { Network } from "@orbs-network/ton-access";
+import { z } from "zod";
+import { useZodState } from "../hooks/zodUseState";
+import { useCallback, useEffect, useState } from "react";
 import { mnemonicToWalletKey } from "@ton/crypto";
 import { WalletContractV4 } from "@ton/ton";
 import { decryptPhrase } from "../../utils/decrypt";
 
+// Define Zod schema for the state
+const StateSchema = z.object({
+  balance: z.string().nullable(),
+
+  showModal: z.boolean(),
+  walletAddress: z.string().nullable(),
+  isNotFriendly: z.string().nullable(),
+  password: z.string(),
+  passwordError: z.string().nullable(),
+});
+
 const TonWalletInfo: React.FC = () => {
-  const [balance, setBalance] = useState<string | null>(null);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState<boolean>(false);
+  // Separate state for showPasswordModal
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
-  const [isNotFriendly, setIsNotFriendly] = useState<string | null>(null);
-const [password, setPassword] = useState<string>('');
-const [passwordError, setPasswordError] = useState<string | null>(null);
+  // Use the zodUseState hook with the Zod schema
+  const [state, setState] = useZodState(StateSchema, {
+    balance: null,
+    walletAddress: null,
+    showModal: false,
+
+    isNotFriendly: null,
+    password: "",
+    passwordError: null,
+  });
+  // Extract state variables
+  const {
+    balance,
+    walletAddress,
+    showModal,
+
+    isNotFriendly,
+    password,
+    passwordError,
+  } = state;
+
   const { wallets, selectedWallet, network, setSelectedWallet, setNetwork } =
     useWalletData();
-    const handlePasswordSubmit = async (password: string) => {
-      // Handle the submitted password, you can use it for decryption or any other logic
-    
-      setPassword(password);
-    };
 
-    //Unlock wallet if password is entered
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          if (wallets.length > 0 && selectedWallet) {
-            const foundWallet = wallets.find((wallet) => wallet.id === selectedWallet);
-  
-            if (foundWallet) {
-              // Check if the user is signed in and show the password modal if not
-              if (walletAddress === null && password === '' && !showPasswordModal) {
-                setShowPasswordModal(true);
-                return;
-              }
-            
-              // Check if password is not null before proceeding
-              if (password !== null && password !== '') {
-                const mnemonic = await decryptPhrase(selectedWallet, password);
-  
-                if (mnemonic) {
-                  // Decrypt wallet and set wallet address as before
-                  const key = await mnemonicToWalletKey(mnemonic.split(" "));
-                  const wallet = WalletContractV4.create({
-                    publicKey: key.publicKey,
-                    workchain: 0,
-                  });
-  
-                  const addressOptions =
-                    network === "mainnet"
-                      ? {}
-                      : { bounceable: false, testOnly: true };
-                  setWalletAddress(wallet.address.toString(addressOptions));
-                  setIsNotFriendly(wallet.address.toRawString());
-                  // Clear sensitive data from state
-                  setShowPasswordModal(false);
-                  setPassword('');
-                  
-                } else {
-              //    console.error("Mnemonic is null! Unable to decrypt wallet.");
-                }
-              } else {
-                // Handle the case where the password is null (user canceled input)
-               // console.error("Password is not provided or user canceled request.");
-              }   
-              
-            }
-          }
-        } catch (error) {
-          //console.error("Error:", (error as Error).message);
-          setPasswordError((error as Error).message);
+  const fetchData = useCallback(async () => {
+    try {
+      console.log("fetchData called with", selectedWallet, network);
+
+      if (!selectedWallet || !password) {
+        // Do nothing if either selectedWalletId or loadedNetwork is null && password
+        setShowPasswordModal(true);
+        return;
+      }
+
+      if (password !== "" && password !== null && selectedWallet !== null) {
+        const mnemonic = await decryptPhrase(selectedWallet, password);
+
+        if (mnemonic) {
+          const key = await mnemonicToWalletKey(mnemonic.split(" "));
+          const wallet = WalletContractV4.create({
+            publicKey: key.publicKey,
+            workchain: 0,
+          });
+
+          const addressOptions =
+            network === Network.Mainnet
+              ? {}
+              : { bounceable: false, testOnly: true };
+
+          // Update wallet address and related state
+          setState((prev) => ({
+            ...prev,
+            walletAddress: wallet.address.toString(addressOptions),
+            isNotFriendly: wallet.address.toRawString(),
+            // password: "",
+          }));
+          setShowPasswordModal(false);
+          console.log("it reached here ");
+        } else {
+          // Handle decryption failure
+         
         }
-      };
-  
-      fetchData();
-    }, [network, wallets, selectedWallet, walletAddress, showPasswordModal, password]);
-  
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      // Handle error
+       setState((prev) => ({
+            ...prev,
+            passwordError: "Mnemonic is null! Unable to decrypt wallet.",
+          }));
+    }
+  }, [network, password, selectedWallet, setState]);
+
+  //need more work to integrate with zod, working without zod was easier because of the state update
+  useEffect(() => {
+    // Call fetchData only if there is a selectedWallet
+    fetchData();
+  }, [network, password, selectedWallet]); //falls into infinite loop if fetchData is used
+  // Cleanup function
 
   // get balance
   useBalanceService({
     network,
     walletAddress,
-    onUpdate: (newBalance) => setBalance(newBalance),
+    onUpdate: (newBalance) =>
+      setState((prev) => ({ ...prev, balance: newBalance })), //add cleanup after getting balance
   });
 
+  const handlePasswordSubmit = async (enteredPassword: string) => {
+    // Handle the submitted password, you can use it for decryption or any other logic
+    setState((prev) => ({ ...prev, password: enteredPassword }));
+  };
   const handleNetworkChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const selectedNetwork = event.target.value as Network;
+
     setNetwork(selectedNetwork);
 
     saveConfig("selectedNetwork", selectedNetwork);
@@ -111,7 +140,7 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
         );
 
         if (foundWallet) {
-          setShowPasswordModal(true); // Prompt the user for the password when changing the network
+          setState((prev) => ({ ...prev, showPasswordModal: true }));
         }
       }
     } catch (error) {
@@ -119,16 +148,14 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
     }
   };
 
-  
-
-  const handleWalletSelect = (walletId: string) => {
+  const handleWalletSelect = async (walletId: string) => {
     setSelectedWallet(walletId);
     saveConfig("selectedWallet", walletId);
-    setShowPasswordModal(true);
   };
-const handleShowModal = () =>{
-  setShowModal(true);
-}
+
+  const handleShowModal = () => {
+    setState((prev) => ({ ...prev, showModal: true }));
+  };
   const handleCopyAddress = async () => {
     try {
       await navigator.clipboard.writeText(walletAddress || "");
@@ -145,7 +172,9 @@ const handleShowModal = () =>{
     <>
       <PasswordModal
         show={showPasswordModal}
-        onHide={() => setShowPasswordModal(false)}
+        onHide={() =>
+          setState((prev) => ({ ...prev, showPasswordModal: false }))
+        }
         onPasswordSubmit={handlePasswordSubmit}
         passwordError={passwordError}
       />
@@ -177,17 +206,18 @@ const handleShowModal = () =>{
                     balance={balance}
                     show={showModal}
                     handleShowModal={handleShowModal}
-                    onHide={() => setShowModal(false)}
+                    onHide={() =>
+                      setState((prev) => ({ ...prev, showModal: false }))
+                    }
                     onCopyAddress={handleCopyAddress}
                   />
                 </Nav>
                 <Nav>
                   <NetworkSelectionForm
-                  network={network}
-                  onChange={handleNetworkChange}
-                />
+                    network={network}
+                    onChange={handleNetworkChange}
+                  />
                 </Nav>
-                
               </>
             ) : (
               <Container>
