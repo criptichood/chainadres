@@ -1,7 +1,7 @@
 import QRCode from "qrcode.react";
-import { Button, Card, CardBody, Modal, Nav, NavDropdown } from "react-bootstrap";
+import { Button, Card, Modal, Nav } from "react-bootstrap";
 import { z } from "zod";
-
+import './WalletInfoDisplay.css'
 // Define Zod schema for the props
 const WalletInfoDisplayPropsSchema = z.object({
   selectedWallet: z.string().nullable(),
@@ -40,65 +40,62 @@ const WalletInfoDisplay: React.FC<WalletInfoDisplayProps> = ({
 
   return (
     <>
-      <Nav.Item>
-        <NavDropdown.Item>
-          {selectedWallet}
-          <div onClick={handleShowModal}>
-            {walletAddress && (
-              <>
-                {walletAddress.substring(0, 6)}...
-                {walletAddress.slice(-7)}
-              </>
-            )}
-          </div>
-        </NavDropdown.Item>
-      </Nav.Item>
-      <Nav.Item>
-        <NavDropdown.Item>
-          <strong>Balance:</strong>
-          <span className="">
-            {balance !== null
-              ? `${Number(balance).toFixed(3)}`
-              : `Unable to load balance`}
-          </span>
-        </NavDropdown.Item>
-      </Nav.Item>
-      <NavDropdown.Divider />
-      <Nav>{/* Other components related to the wallet info display */}</Nav>
-      <Modal
-        show={show}
-        onHide={onHide} // Corrected the onHide function call
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Wallet address</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Card>
-            <CardBody>
-              <Card.Title>User Friendly</Card.Title>
-              {/* To use another QR code generator */}
-              <QRCode
-                value={walletAddress || ""}
-                size={200}
-                style={{ border: "1px solid #fff", borderRadius: "8px" }}
-              />
+    <Nav.Item className="wallet-info-display">
+      <Nav.Link onClick={handleShowModal}>
+        <strong>{selectedWallet}</strong>
+        <div className="text-muted">
+          {/* {walletAddress && (
+            <>
+              {walletAddress.substring(0, 6)}...
+              {walletAddress.slice(-7)}
+            </>
+          )} */}
+        </div>
+      </Nav.Link>
+    </Nav.Item>
 
-              <Card.Text>{walletAddress}</Card.Text>
-              <Card.Title>Non-User Friendly Address</Card.Title>
-              <Card.Text>{isNotFriendly}</Card.Text>
-            </CardBody>
-          </Card>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={onHide}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={onCopyAddress}>
-            Copy Address
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+    <Nav.Item className="balance-info-display">
+      <Nav.Link onClick={handleShowModal}>
+        <strong>Balance:</strong>
+        <span className="ml-2">
+          {balance !== null
+            ? `${Number(balance).toFixed(3)}`
+            : `Unable to load balance`}
+        </span>
+      </Nav.Link>
+    </Nav.Item>
+
+    {/* Modal for wallet address */}
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>
+        <Modal.Title>Wallet Address</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Card>
+          <Card.Body>
+            <Card.Title>User-Friendly Address</Card.Title>
+            <QRCode
+              value={walletAddress || ""}
+              size={200}
+              style={{ border: "1px solid #eee", borderRadius: "8px" }}
+            />
+            <Card.Text className="mt-3">{walletAddress}</Card.Text>
+
+            <Card.Title>Non-User-Friendly Address</Card.Title>
+            <Card.Text>{isNotFriendly}</Card.Text>
+          </Card.Body>
+        </Card>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onHide}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={onCopyAddress}>
+          Copy Address
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  </>
   );
 };
 

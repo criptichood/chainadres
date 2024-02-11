@@ -1,0 +1,16 @@
+/* Add this to your stylesheet */
+.wallet-info-display {
+    margin-right: 10px; /* Adjust the spacing */
+  }
+  
+  .balance-info-display {
+    margin-left: 10px; /* Adjust the spacing */
+  }
+  
+  /* Customize the modal styles as needed */
+  .modal-content {
+    background-color: #041d4d; /* Set your preferred background color */
+  }
+  
+  /* Add any additional styles based on your design preferences */
+  

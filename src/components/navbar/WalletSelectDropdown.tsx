@@ -1,6 +1,6 @@
 // WalletSelectDropdown.tsx
 import React from 'react';
-import { NavDropdown } from 'react-bootstrap';
+import { NavDropdown, Button } from 'react-bootstrap';
 
 interface Wallet {
     id: string;
@@ -14,6 +14,7 @@ interface WalletSelectDropdownProps {
 const WalletSelectDropdown: React.FC<WalletSelectDropdownProps> = ({ wallets, onSelect }) => {
   return (
     <NavDropdown title="Select Wallet" id="basic-nav-dropdown">
+    <Button>Create Wallet</Button> 
       {wallets.map((wallet: Wallet) => (
         <NavDropdown.Item key={wallet.id} onClick={() => onSelect(wallet.id)}>
           {wallet.id}

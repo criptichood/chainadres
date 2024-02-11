@@ -1,0 +1,19 @@
+/* NetworkSelectionForm.css */
+
+/* Custom styles for the select dropdown */
+.custom-select {
+    background-color: #04111f;
+         /* Set the background color */
+    color: #04800a; 
+        /* Set the text color */
+       height: 40px;
+       
+  }
+  
+  /* Custom hover effect for dropdown options */
+  .custom-select option:hover {
+    background-color: #04111f; /* Set the hover background color */
+    color: #dfe1e2; /* Set the hover text color */
+   
+  }
+  
