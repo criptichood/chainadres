@@ -1,6 +1,6 @@
 // TonWalletInfo.tsx
 import "../../assets/bootstrap/css/bootstrap.min.css";
-import { Button, Container, Nav, Navbar } from "react-bootstrap";
+import { Button, Container, Nav, Navbar, Image } from "react-bootstrap";
 import PasswordModal from "./auth/PasswordModal";
 import NetworkSelectionForm from "./NetworkSelectionForm";
 import WalletInfoDisplay from "./WalletInfoDisplay";
@@ -17,7 +17,8 @@ import { useCallback, useEffect, useState } from "react";
 import { mnemonicToWalletKey } from "@ton/crypto";
 import { WalletContractV4 } from "@ton/ton";
 import { decryptPhrase } from "../../utils/decrypt";
-
+import Sidebar from "./Sidebar";
+import boovsImage from './boovs.jpg';
 // Define Zod schema for the state
 const StateSchema = z.object({
   balance: z.string().nullable(),
@@ -168,6 +169,11 @@ const TonWalletInfo: React.FC = () => {
 
   const hasSelectedWallet = selectedWallet !== null;
 
+  const [showOffcanvas, setShowOffcanvas] = useState(false);
+
+  const handleOffcanvasToggle = () => {
+    setShowOffcanvas((prev) => !prev);
+  };
   return (
     <>
       <PasswordModal
@@ -178,7 +184,7 @@ const TonWalletInfo: React.FC = () => {
         onPasswordSubmit={handlePasswordSubmit}
         passwordError={passwordError}
       />
-      <Navbar expand="lg" bg="body-tertiary" variant="dark" fixed="top">
+      <Navbar expand="sm md lg xl xxl xs" className="mb-4" bg="dark body-tertiary" variant="dark" fixed="top">
         <Container>
           <Navbar.Brand href="#home">
             <img
@@ -190,14 +196,18 @@ const TonWalletInfo: React.FC = () => {
             />
             {" Chainadres"}
           </Navbar.Brand>
+
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-          <Navbar.Collapse id="responsive-navbar-nav">
+            <Navbar.Collapse id="responsive-navbar-nav">
+            
             {hasSelectedWallet ? (
-              <>
+              <Nav className="mr-auto">
+
                 <WalletSelectDropdown
                   wallets={wallets}
                   onSelect={handleWalletSelect}
                 />
+  <div className="divider"></div>
                 <Nav className="justify-content-center">
                   <WalletInfoDisplay
                     selectedWallet={selectedWallet}
@@ -218,7 +228,16 @@ const TonWalletInfo: React.FC = () => {
                     onChange={handleNetworkChange}
                   />
                 </Nav>
-              </>
+                <Nav >
+              {/* Trigger Sidebar with show and onHide properties also the profile picture */}
+              <div onClick={handleOffcanvasToggle}>
+                <Image src={boovsImage} alt="Profile" roundedCircle width="50" className="rounded-circle ms-3 " />
+              </div>
+            </Nav>
+               
+                </Nav>
+               
+              
             ) : (
               <Container>
                 <Nav className="justify-content-end">
@@ -244,6 +263,8 @@ const TonWalletInfo: React.FC = () => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+    
+       <Sidebar show={showOffcanvas} onHide={handleOffcanvasToggle} />
     </>
   );
 };
